@@ -4,6 +4,7 @@
     <div class="container">
         <h2>{{ post.title }}</h2>
         <p>{{ post.body }}</p>
-        <small>Published: {{ post.date }}</small>
+        <span>Author: <i>{{ post.author }}</i></span><br>
+        <span>Published: <i>{{ post.date }}</i></span>
     </div>
 {% endblock %}

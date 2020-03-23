@@ -1,9 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import DetailView, ListView
 from django.urls import reverse_lazy
-from .models import Post
+from django.shortcuts import render
+from .models import Post, Blog
 
 POSTS_PER_PAGE = 5
 
@@ -40,8 +42,9 @@ class PostUpdate(LoginRequiredMixin, UpdateView):
     fields = ['title', 'body']
 
     def get_queryset(self):
-        post = Post.objects.filter(pk=self.kwargs['pk'])
-        if post and post[0].author == self.request.user:
+        post = Post.objects.filter(pk=self.kwargs['pk'],
+                                   author=self.request.user)
+        if post:
             return post
         else:
             raise Http404()
@@ -53,8 +56,31 @@ class PostDelete(LoginRequiredMixin, DeleteView):
     template_name = 'blog/post_delete.html'
 
     def get_queryset(self):
-        post = Post.objects.filter(pk=self.kwargs['pk'])
-        if post and post[0].author == self.request.user:
+        post = Post.objects.filter(pk=self.kwargs['pk'],
+                                   author=self.request.user)
+        if post:
             return post
         else:
             raise Http404()
+
+
+def alter_user_status(request, blog):
+    user_pk = request.POST.get('user_pk')
+    if request.POST.get('subscribe') == 'True':
+        blog.subscribed_to.add(User.objects.get(pk=user_pk))
+    else:
+        blog.subscribed_to.remove(User.objects.get(pk=user_pk))
+
+
+def other_blogs(request):
+    blog = Blog.objects.get(owner=request.user)
+    if request.method == 'POST':
+        alter_user_status(request, blog)
+
+    users = User.objects.all()
+    subscribed_to = blog.subscribed_to.all()
+    context = {
+        'users': users,
+        'subscribed_to': subscribed_to,
+    }
+    return render(request, 'blog/other_blogs.html', context)

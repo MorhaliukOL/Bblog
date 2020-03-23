@@ -15,8 +15,9 @@
           <a class="navbar-brand" href="#">Bblog</a>
 
           {% if user.is_authenticated %}
-            <a class="nav-link" style="color: black" href="#">My profile</a>
+            <a class="nav-link" style="color: black" href="{% url 'my-blog' %}">My blog</a>
             <a class="nav-link" style="color: black" href="#">News feed</a>
+            <a class="nav-link" style="color: black" href="{% url 'blogs-other' %}">Other blogs</a>
           {% endif %}
 
           <div class="collapse navbar-collapse">

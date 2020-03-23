@@ -15,3 +15,15 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Blog(models.Model):
+    owner = models.OneToOneField(settings.AUTH_USER_MODEL,
+                                 on_delete=models.CASCADE,
+                                 related_name='owner')
+    subscribed_to = models.ManyToManyField(settings.AUTH_USER_MODEL,
+                                           blank=True,
+                                           related_name='subscribed_to')
+
+    def __str__(self):
+        return f'Owner: {self.owner.username}'
