@@ -5,10 +5,10 @@ from django.views.generic import DetailView, ListView
 from django.urls import reverse_lazy
 from .models import Post
 
-POSTS_PER_PAGE = 10
+POSTS_PER_PAGE = 5
 
 
-class MyBlog(ListView):
+class MyBlog(LoginRequiredMixin, ListView):
     """
     Display list of posts created by the current user,
     ordered by creation date in reversed order.
