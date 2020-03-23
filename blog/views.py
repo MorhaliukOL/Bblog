@@ -23,6 +23,21 @@ class MyBlog(LoginRequiredMixin, ListView):
         return Post.objects.filter(author=self.request.user).order_by('-date')
 
 
+class NewsFeed(LoginRequiredMixin, ListView):
+    """
+    Display list of posts created by users that current user
+    is subscribed on, ordered by creation date in reversed order.
+    """
+    context_object_name = 'new_posts'
+    template_name = 'blog/news_feed.html'
+    paginate_by = POSTS_PER_PAGE
+
+    def get_queryset(self):
+        blog = Blog.objects.get(owner=self.request.user)
+        return Post.objects.filter(author__in=
+                                   blog.subscribed_to.all()).order_by('-date')
+
+
 class PostCreate(LoginRequiredMixin, CreateView):
     model = Post
     fields = ['title', 'body']

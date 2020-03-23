@@ -16,7 +16,7 @@
 
           {% if user.is_authenticated %}
             <a class="nav-link" style="color: black" href="{% url 'my-blog' %}">My blog</a>
-            <a class="nav-link" style="color: black" href="#">News feed</a>
+            <a class="nav-link" style="color: black" href="{% url 'news-feed' %}">News feed</a>
             <a class="nav-link" style="color: black" href="{% url 'blogs-other' %}">Other blogs</a>
           {% endif %}
 
