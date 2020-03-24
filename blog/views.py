@@ -4,7 +4,7 @@ from django.http import Http404
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import DetailView, ListView
 from django.urls import reverse_lazy
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Post, Blog
 
 POSTS_PER_PAGE = 5
@@ -20,7 +20,8 @@ class MyBlog(LoginRequiredMixin, ListView):
     paginate_by = POSTS_PER_PAGE
 
     def get_queryset(self):
-        return Post.objects.filter(author=self.request.user).order_by('-date')
+        return Post.objects.filter(author=
+                                   self.request.user).order_by('-date')
 
 
 class NewsFeed(LoginRequiredMixin, ListView):
@@ -36,6 +37,14 @@ class NewsFeed(LoginRequiredMixin, ListView):
         blog = Blog.objects.get(owner=self.request.user)
         return Post.objects.filter(author__in=
                                    blog.subscribed_to.all()).order_by('-date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        blog = Blog.objects.get(owner=self.request.user)
+        already_read = blog.read_posts.all()
+        context['already_read'] = already_read
+        return context
 
 
 class PostCreate(LoginRequiredMixin, CreateView):
@@ -80,6 +89,11 @@ class PostDelete(LoginRequiredMixin, DeleteView):
 
 
 def alter_user_status(request, blog):
+    """
+    Subscribe 'blog' to user that gets past in the POST request
+    if POST request's 'subscribe' parameter is True,
+    and unsubscribe otherwise
+    """
     user_pk = request.POST.get('user_pk')
     if request.POST.get('subscribe') == 'True':
         blog.subscribed_to.add(User.objects.get(pk=user_pk))
@@ -88,6 +102,9 @@ def alter_user_status(request, blog):
 
 
 def other_blogs(request):
+    """
+    Display list of other users
+    """
     blog = Blog.objects.get(owner=request.user)
     if request.method == 'POST':
         alter_user_status(request, blog)
@@ -99,3 +116,9 @@ def other_blogs(request):
         'subscribed_to': subscribed_to,
     }
     return render(request, 'blog/other_blogs.html', context)
+
+
+def mark_posts_read(request, pk):
+    blog = Blog.objects.get(owner=request.user)
+    blog.read_posts.add(Post.objects.get(pk=pk))
+    return redirect('news-feed')

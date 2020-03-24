@@ -7,6 +7,11 @@
             <a href="{% url 'post-detail' post.pk %}">
                 <h2>{{ post.title }}</h2>
             </a>
+            {% if post in already_read %}
+                <p style="color: green">Already read</p>
+            {% else %}
+                <a href="{% url 'mark-read' post.pk %}" style="color: purple">Mark as read</a>
+            {% endif %}
             <p>{{ post.body }}</p>
             <span>Author: <i>{{ post.author }}</i></span><br>
             <span>Published: <i>{{ post.date }}</i></span>

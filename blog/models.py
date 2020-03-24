@@ -24,6 +24,8 @@ class Blog(models.Model):
     subscribed_to = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                            blank=True,
                                            related_name='subscribed_to')
+    read_posts = models.ManyToManyField(Post, blank=True,
+                                        related_name='read_posts')
 
     def __str__(self):
         return f'Owner: {self.owner.username}'
