@@ -88,17 +88,36 @@ class PostDelete(LoginRequiredMixin, DeleteView):
             raise Http404()
 
 
-def alter_user_status(request, blog):
+def alter_user_status(request):
     """
     Subscribe 'blog' to user that gets past in the POST request
     if POST request's 'subscribe' parameter is True,
     and unsubscribe otherwise
     """
-    user_pk = request.POST.get('user_pk')
-    if request.POST.get('subscribe') == 'True':
-        blog.subscribed_to.add(User.objects.get(pk=user_pk))
-    else:
-        blog.subscribed_to.remove(User.objects.get(pk=user_pk))
+    if request.method == 'POST':
+        blog = Blog.objects.get(owner=request.user)
+        user_pk = request.POST.get('user_pk')
+        if request.POST.get('subscribe') == 'True':
+            blog.subscribed_to.add(User.objects.get(pk=user_pk))
+            blog.save()
+        else:
+            blog.subscribed_to.remove(User.objects.get(pk=user_pk))
+            blog.save()
+        return redirect('other-blogs')
+
+
+class OtherBlogs(LoginRequiredMixin, ListView):
+    context_object_name = 'users'
+    template_name = 'blog/other_blogs.html'
+
+    def get_queryset(self):
+        return User.objects.exclude(username=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_blog = Blog.objects.get(owner=self.request.user)
+        context['subscribed_to'] = current_blog.subscribed_to.all()
+        return context
 
 
 def other_blogs(request):

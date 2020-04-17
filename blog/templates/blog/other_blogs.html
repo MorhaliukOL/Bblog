@@ -16,14 +16,14 @@
                 <td>{{ user.username }}</td>
                 <td align="right">
                     {% if user in subscribed_to %}
-                        <form method="post" action="">{% csrf_token %}
-                            <input type="submit" name="unfollow" value="Unsubscribe" role="button" class="btn btn-danger" style="width: 20%">
+                        <form method="post" action="{% url 'alter-user-status' %}">{% csrf_token %}
+                            <input type="submit" name="Unsubscribe" value="Unsubscribe" role="button" class="btn btn-danger" style="width: 20%">
                             <input type="hidden" name="subscribe" value="False">
                             <input type="hidden" name="user_pk" value="{{ user.pk }}">
                         </form>
                     {% else %}
-                        <form method="post" action="">{% csrf_token %}
-                            <input type="submit" name="follow" value="Subscribe" role="button" class="btn btn-info" style="width: 20%">
+                        <form method="post" action="{% url 'alter-user-status' %}">{% csrf_token %}
+                            <input type="submit" name="subscribe" value="Subscribe" role="button" class="btn btn-info" style="width: 20%">
                             <input type="hidden" name="subscribe" value="True">
                             <input type="hidden" name="user_pk" value="{{ user.pk }}">
                         </form>
